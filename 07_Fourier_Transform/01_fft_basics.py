@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-n = 1000
+n = 1000          #no. of samples
 t = 1.0/ 800     #sampling rate
 
 x = np.linspace(0.0,n*t, n, endpoint=False)
@@ -15,7 +15,7 @@ frequency_fault = 50
 signal_fault = 0.3*np.sin(2 * np.pi * frequency_fault * time)
 
 noise = np.random.normal(0,0.2,1000)
-y = signal_motor + signal_fault + noise
+y = signal_motor + signal_fault + noise #real world signal yesto hunxa with noise and fault
 
 yf = np.fft.fft(y)   #gives the value for the given signal of its constituent complex numbers represnting magnitude and direction
 xf = np.fft.fftfreq(n,t) #gives x-axis means from our sampling it gives equally divided spacing of frequencies
