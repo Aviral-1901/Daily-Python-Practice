@@ -1,5 +1,13 @@
 import numpy as np
+import os
 from dense_layer_class_help import DenseLayer
+
+
+# 1. Get the folder where THIS script is running
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 2. Join that folder with the filename
+file_path = os.path.join(script_dir, "model_weights.h")
 
 inputs_x = np.array([[0,0],[0,1],[1,0],[1,1]]) 
 targets_Y = np.array([[0],[1],[1],[0]])
@@ -17,7 +25,7 @@ for i in range(10000):
     grad1 = layer1.backward(grad2, 0.1)
     
 
-with open("model_weights.h","w") as f:
+with open(file_path, "w") as f:  #to keep .h file in the same folder where i ran it from 
     f.write("// Auto-generated Weights\n")
 
     f.write("float w1[2][3] = {\n") # C/C++ 2D array define garna start gareko, initializer { bata suru huncha
