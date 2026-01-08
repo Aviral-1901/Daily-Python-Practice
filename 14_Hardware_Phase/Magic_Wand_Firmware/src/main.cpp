@@ -1,18 +1,27 @@
 #include <Arduino.h>
+#include "NeuralNetwork.h"
+#include "RingBuffer.h"
 
-// put function declarations here:
-int myFunction(int, int);
+RingBuffer rbuffer;
+NeuralNetwork nn;
+float current_batch[50];
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+void setup()
+{
+  Serial.begin(115200);
+  Serial.println("System Initialized");
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+void loop()
+{
+  float input = 0.0;
+  rbuffer.add(input);
+  if(rbuffer.is_ready())
+  {
+    rbuffer.get_batch(current_batch);
+    float prediction = nn.predict(current_batch);
+    Serial.print("Prediction: ");
+    Serial.println(prediction);
+  }
+  delay(100);
 }
