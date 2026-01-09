@@ -1,7 +1,11 @@
 #include <Arduino.h>
 #include "NeuralNetwork.h"
 #include "RingBuffer.h"
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+#include <Wire.h>
 
+/* 
 RingBuffer rbuffer;
 NeuralNetwork nn;
 float current_batch[50];
@@ -24,4 +28,29 @@ void loop()
     Serial.println(prediction);
   }
   delay(100);
+}
+*/
+
+Adafruit_MPU6050 my_mpu;
+
+void setup()
+{
+  Serial.begin(115200);
+  if(!my_mpu.begin())
+  {
+    while(1);
+  }
+  
+
+}
+
+void loop()
+{
+  sensors_event_t accel_data;
+  sensors_event_t gyro_data;
+  sensors_event_t temp_data;
+  my_mpu.getEvent(&accel_data, &gyro_data, &temp_data);
+  Serial.print("Acceleration : ");
+  Serial.println(accel_data.acceleration.z);
+  delay(500);
 }
