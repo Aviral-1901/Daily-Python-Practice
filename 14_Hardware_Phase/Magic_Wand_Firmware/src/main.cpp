@@ -11,9 +11,12 @@ Adafruit_MPU6050 my_mpu;
 float gravity = 0.0;
 float current_batch[50];
 float prediction = 0.0;
+const int LED_PIN = 2;
+unsigned int previous = 0;
 
 void setup()
 {
+  pinMode(LED_PIN, OUTPUT);
   Serial.begin(115200);
   if(!my_mpu.begin())
   {
@@ -27,31 +30,43 @@ void setup()
 
 void loop()
 {
+  if(millis()- previous > 10)
+  {
+    previous = millis();
   sensors_event_t accel_data;
   sensors_event_t gyro_data;
   sensors_event_t temp_data;
 
   my_mpu.getEvent(&accel_data, &gyro_data, &temp_data);
   float raw_z = accel_data.acceleration.z;
-  float alpha = 0.1;
-  gravity = (0.1 * raw_z) + (0.9 * gravity);
-  float user_acc = raw_z - gravity;
-  user_acc /= 20;
-  rbuffer.add(user_acc);
+  float alpha = 0.1;  //smoothing factor
+  //low pass filter and lets gravity to change slowly over time 
+  gravity = (alpha * raw_z) + ((1 - alpha) * gravity); //gravity = (0.1 * gravityNew[input]) + (0.9 * gravityOld)  -> i gave more weightage to the old value(90%)
+  float user_acc = raw_z - gravity; //high pass filter
+  user_acc /= 20;  //normalizatio
+  rbuffer.add(user_acc);  //added the value to ring-buffer
   if(rbuffer.is_ready())
   {
     rbuffer.get_batch(current_batch);
     prediction = nn.predict(current_batch);
+    
     if(prediction > 0.8)
     {
       Serial.println("Walking |||||||||");
+      digitalWrite(LED_PIN,HIGH);
     }
-    else
+    else if(prediction < 0.4) //neural-network while training gave 0.32 for sitting so i have used 0.4 as threshold here
     {
       Serial.println("..............");
+      digitalWrite(LED_PIN,LOW);
     }
+    // else
+    // {
+    //   Serial.print("unsure: ");
+    //   Serial.println(prediction);
+    // }
   }
-  delay(10);
+ }
 }
 
 
