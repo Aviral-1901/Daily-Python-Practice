@@ -10,6 +10,7 @@ def load_gesture(filename):
     numpy_matrix = acceleration_data.to_numpy()
     return numpy_matrix
 
+
 def dtw_smart(s1, s2):
     n = len(s1) #n le row haru batauxa
     m = len(s2) #m le column haru batauxa
@@ -35,6 +36,7 @@ def dtw_smart(s1, s2):
         prev_row = curr_row.copy() 
     
     return curr_row[m-1]
+
 
 circle = load_gesture(r"C:\Users\Dell\Desktop\PYTHON Daily\15_Advanced_Architecture\Day40_DTW_Optimized\Circle.csv")
 shape_z = load_gesture(r"C:\Users\Dell\Desktop\PYTHON Daily\15_Advanced_Architecture\Day40_DTW_Optimized\Shape_Z.csv")
