@@ -38,9 +38,19 @@ range_input = np.max(X) - np.min(X)
 INPUT_SCALE = range_input / 255
 INPUT_ZERO_POINT = np.round(0.0 - (np.min(X) / INPUT_SCALE))
 
+range_dense_weight = np.max(model.dense.weights) - np.min(model.dense.weights)
+DENSE_WEIGHT_SCALE = range_dense_weight / 255
+DENSE_WEIGHT_ZERO = np.round(0.0 - (np.min(model.dense.weights) / DENSE_WEIGHT_SCALE))
+FINAL_OUT_SCALE = 1.0 / 255 #range of finalout is 0.0-1.0 
+FINAL_OUT_Z = 0 #final out zero point is 0
+M0_dense = (CONV_OUT_SCALE * DENSE_WEIGHT_SCALE) / FINAL_OUT_SCALE
+
 print("Convweight scale :",CONV_WEIGHT_SCALE)
 print("Convweight zeropoint :",CONV_WEIGHT_ZEROPOINT)
 print("Convout scale :",CONV_OUT_SCALE)
 print("convout zero point:",CONV_OUT_ZEROPOINT)
 print("input scale :",INPUT_SCALE)
 print("input zeropoint :",INPUT_ZERO_POINT)
+print("dense weight scale :",DENSE_WEIGHT_SCALE)
+print("dense weight zero point :",DENSE_WEIGHT_ZERO)
+print("multiplier dense :",M0_dense)
