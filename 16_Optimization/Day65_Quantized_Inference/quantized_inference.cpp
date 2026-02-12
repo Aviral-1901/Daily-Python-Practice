@@ -2,7 +2,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include "audio_model.h"
-#include "test_data.h"
+#include "test_input_int.h"
 
 const uint8_t INPUT_Z = 54;
 const uint8_t WEIGHT_Z = 115;
@@ -15,18 +15,10 @@ const uint8_t DENSE_SHIFT = 16;
 
 int main()
 {
-    uint8_t input[128][123];
-    for(int i=0; i<128; i++)
-    {
-        for(int j=0; j<123; j++)
-        {
-            input[i][j] = 100;
-        }
-    }
+    
     uint8_t weight[128][3];
     memset(weight, 115, sizeof(weight));
     uint8_t output[8][121] = {0};
-
 
     for(int flt=0; flt<8; flt++)
     {
@@ -37,7 +29,7 @@ int main()
         {
             for(int k=0; k<3; k++)
             {
-                int32_t val = (int32_t)input[row][t+k] - INPUT_Z;
+                int32_t val = (int32_t)test_input_int[row][t+k] - INPUT_Z;
                 int32_t w = (int32_t)conv_weights[flt][row][k] - WEIGHT_Z;
                 accumulator += val * w;
             }
@@ -78,6 +70,11 @@ int main()
 
 // Add the bias here (assuming it's scaled correctly)
     int32_t prediction = ((dense_sum * M_DENSE) >> DENSE_SHIFT) + 0;
+
+    // Clamp the result to the 8-bit range (0-255)
+    if (prediction > 255) prediction = 255;
+    if (prediction < 0)   prediction = 0;
+
     if(prediction > 128) printf("AI output : Yes (%d)\n",prediction);
     else printf("AI output : No (%d)\n",prediction);
 }
