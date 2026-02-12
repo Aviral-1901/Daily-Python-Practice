@@ -58,4 +58,3 @@ with open(file_path,"w") as f:
     write_dense(f, "dense_weights", model.dense.weights)
     write_dense(f, "dense_biases", model.dense.biases)
     f.write("#endif")
-
