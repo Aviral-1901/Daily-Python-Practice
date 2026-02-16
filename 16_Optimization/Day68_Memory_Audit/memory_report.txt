@@ -1,0 +1,4 @@
+RAM:   [=         ]   7.0% (used 22776 bytes from 327680 bytes)
+Flash: [==        ]  21.6% (used 282929 bytes from 1310720 bytes)
+
+Flash usage is 21.6%. This includes the weights in .rodata segment.
