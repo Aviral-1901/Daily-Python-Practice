@@ -63,7 +63,7 @@ int main()
         {
             int idx = (f * 60) + t;
             int32_t val = (int32_t)pooled_out[f][t] - CONV_OUT_Z;
-            int32_t w = (int32_t)dense_weights[idx] - DENSE_WEIGHT_Z;
+            int32_t w = (int32_t)dense_weights[idx][0] - DENSE_WEIGHT_Z;
             dense_sum += val * w;
         }
     }
