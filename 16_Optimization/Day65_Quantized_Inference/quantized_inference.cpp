@@ -2,7 +2,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include "audio_model.h"
-#include "test_input_int.h"
+#include "test_input_no.h"
 
 const uint8_t INPUT_Z = 54;
 const uint8_t WEIGHT_Z = 115;
