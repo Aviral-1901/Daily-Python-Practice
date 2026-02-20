@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "model_data.h"
+#include "test_input_float.h"
 #include "tensorflow/lite/schema/schema_generated.h" //model.h ma vako hex values bata meaning nikalna ko lagi
 #include "tensorflow/lite/micro/micro_error_reporter.h" //reports for any error while running the code and for debugging
 #include "tensorflow/lite/micro/micro_interpreter.h"
@@ -49,6 +50,29 @@ void setup()
 
 void loop()
 {
+  float* input_buffer = input->data.f;
+  int index = 0;
+  for(int row=0; row<129; row++)
+  {
+    for(int col=0; col<124; col++)
+    {
+      if(row>=128 || col>=123) 
+        input_buffer[index] = 0.0f;
+      else
+      input_buffer[index] = input_float[row][col];
+      index++;
+    }
+  }
+
+  TfLiteStatus status = interpreter->Invoke();
+  if(status != kTfLiteOk)
+  {
+    TF_LITE_REPORT_ERROR(error_reporter, "Invoke failed");
+    return;
+  }
+
+  float prediction = output->data.f[0];
+  Serial.println(prediction);
 
 }
 
