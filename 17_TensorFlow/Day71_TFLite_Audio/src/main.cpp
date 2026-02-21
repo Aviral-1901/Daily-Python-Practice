@@ -5,8 +5,9 @@
 #include "tensorflow/lite/micro/micro_error_reporter.h" //reports for any error while running the code and for debugging
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
+//#include "tensorflow/lite/micro/all_ops_resolver.h"
 
-const int kTensorAreaSize = 25 * 1024;
+const int kTensorAreaSize = 80 * 1024;
 alignas(16) uint8_t tensor_arena[kTensorAreaSize];
 //alignas(16) will allow the array to start at memory address which is multiple of 16
 //tflite uses SIMD and needs (16bytes)128 bits of data at once
@@ -26,13 +27,18 @@ void setup()
   error_reporter = &micro_error_reporter;
   model = tflite::GetModel(audio_model);
   
-  static tflite::MicroMutableOpResolver<6> resolver; //<> to tell how many operations
+  //static tflite::AllOpsResolver resolver;
+  static tflite::MicroMutableOpResolver<9> resolver; //<> to tell how many operations
+  //to know which operations to add, upload tflite file to netron.app 
   resolver.AddConv2D();
   resolver.AddRelu();
   resolver.AddMaxPool2D();
   resolver.AddReshape();
   resolver.AddFullyConnected();
   resolver.AddLogistic();
+  resolver.AddShape();
+  resolver.AddStridedSlice();
+  resolver.AddPack();
 
   static tflite::MicroInterpreter static_interpreter(model, resolver, tensor_arena, kTensorAreaSize,
                                                      error_reporter);
@@ -41,7 +47,7 @@ void setup()
   if (allocate_status != kTfLiteOk) 
   {
     TF_LITE_REPORT_ERROR(error_reporter, "AllocateTensors() failed");
-    return;
+    while(1) {delay(100);}
   }
 
   input = interpreter->input(0);
