@@ -1,13 +1,13 @@
 #include <Arduino.h>
-#include "model_data.h"
-#include "test_input_float.h"
+#include "qat_model_data.h"
+#include "test_input_int.h"
 #include "tensorflow/lite/schema/schema_generated.h" //model.h ma vako hex values bata meaning nikalna ko lagi
 #include "tensorflow/lite/micro/micro_error_reporter.h" //reports for any error while running the code and for debugging
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 //#include "tensorflow/lite/micro/all_ops_resolver.h"
 
-const int kTensorAreaSize = 80 * 1024;
+const int kTensorAreaSize = 20 * 1024;
 alignas(16) uint8_t tensor_arena[kTensorAreaSize];
 //alignas(16) will allow the array to start at memory address which is multiple of 16
 //tflite uses SIMD and needs (16bytes)128 bits of data at once
@@ -25,7 +25,7 @@ void setup()
   Serial.begin(115200);
   static tflite::MicroErrorReporter micro_error_reporter;
   error_reporter = &micro_error_reporter;
-  model = tflite::GetModel(audio_model);
+  model = tflite::GetModel(qat_model_data);
   
   //static tflite::AllOpsResolver resolver;
   static tflite::MicroMutableOpResolver<9> resolver; //<> to tell how many operations
@@ -40,6 +40,7 @@ void setup()
   resolver.AddStridedSlice();
   resolver.AddPack();
 
+
   static tflite::MicroInterpreter static_interpreter(model, resolver, tensor_arena, kTensorAreaSize,
                                                      error_reporter);
   interpreter = &static_interpreter;
@@ -52,20 +53,22 @@ void setup()
 
   input = interpreter->input(0);
   output = interpreter->output(0);
+  Serial.print("Input Zero Point: ");
+  Serial.println(input->params.zero_point);
 }
 
 void loop()
 {
-  float* input_buffer = input->data.f;
+  int8_t* input_buffer = input->data.int8;
   int index = 0;
   for(int row=0; row<129; row++)
   {
     for(int col=0; col<124; col++)
     {
       if(row>=128 || col>=123) 
-        input_buffer[index] = 0.0f;
+        input_buffer[index] = (int8_t)((int)test_input_int[row][col] - 128);
       else
-      input_buffer[index] = input_float[row][col];
+      input_buffer[index] = 0;
       index++;
     }
   }
@@ -77,7 +80,17 @@ void loop()
     return;
   }
 
-  float prediction = output->data.f[0];
+  int8_t raw_output = output->data.int8[0];
+
+  //quantization parameters
+  float scale = output->params.scale;
+  int32_t zero_point = output->params.zero_point;
+
+  float prediction = (raw_output - zero_point) * scale;
+
+  Serial.print("Raw: ");
+  Serial.print(raw_output);
+  Serial.print(" | Prediction: ");
   Serial.println(prediction);
 
 }
