@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <cstring>
 #include "knn.h" 
+#include "Arduino.h"
 
 float get_distance(float* A, float* B)
 {
@@ -30,11 +31,13 @@ void KNNClassifier::learn(float* new_features, int label)
 
 int KNNClassifier::predict(float* input_features)
 {
-    float min_dist = 99999.99;
+    float min_dist = 9999999.99;
     int best_label = -1;
+    Serial.printf("Predicting against %d memories...\n", count);
     for(int i=0; i<count; i++)
     {
         float dist = get_distance(input_features, database[i].data);
+        Serial.printf("Dist to Memory %d: %f\n", i, dist);
         if(dist < min_dist) 
         {
             min_dist = dist;

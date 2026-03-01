@@ -21,6 +21,7 @@ void process_packet()
   {
     my_knn.learn(features, label);
     Serial.println("Learned");
+    Serial.println(features[0], 4);
   }
   if(command==2) 
   {
@@ -32,7 +33,7 @@ void process_packet()
 void setup()
 {
   Serial.begin(115200);
-  Serial.setTimeout(2000); //dont wait for more than 2sec for reading Bytes
+  Serial.setTimeout(5000); //dont wait for more than 2sec for reading Bytes
 }
 
 
