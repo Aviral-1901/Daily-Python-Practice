@@ -17,6 +17,19 @@ void process_packet()
   int bytes_read = Serial.readBytes(byte_ptr, 1952); //Serial.readBytes le number of bytes pani return garxa
   //1952 vaneko total 1952 bytes read garna vaneko
   if(bytes_read != 1952) return;
+  uint8_t received_checksum;
+  Serial.readBytes(&received_checksum, 1);
+
+  uint8_t calculated_checksum = 0;
+  for(int i=0; i<1952; i++)
+  {
+    calculated_checksum += byte_ptr[i];
+  }
+  if(calculated_checksum != received_checksum)
+  {
+    Serial.println("Error checksum mismatch");
+    return;
+  }
   if(command==1) 
   {
     my_knn.learn(features, label);
