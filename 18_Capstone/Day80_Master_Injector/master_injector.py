@@ -6,6 +6,13 @@ from features import get_features
 ser = serial.Serial("COM8", 115200)
 time.sleep(2)
 
+def calculate_checksum(byte_data): 
+    #add all the numbers and return 1 byte number
+    total = 0
+    for b in byte_data:
+        total = (total+b)% 256
+    return total
+
 def send_and_wait(command, label, features):
     ser.write(b'START') #header
 
@@ -13,10 +20,13 @@ def send_and_wait(command, label, features):
     ser.write(struct.pack('B', label))
 
     payload = struct.pack('488f', *features)
+    chksum = calculate_checksum(payload)
     chunk_size = 256
     for i in range(0, len(payload), chunk_size):
         ser.write(payload[i:i+chunk_size])
         time.sleep(0.01)
+    ser.write(struct.pack('B', chksum))
+
 
     while True:
         line = ser.readline().decode('utf-8', errors='ignore').strip()
