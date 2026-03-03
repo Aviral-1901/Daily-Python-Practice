@@ -31,18 +31,44 @@ void KNNClassifier::learn(float* new_features, int label)
 
 int KNNClassifier::predict(float* input_features)
 {
-    float min_dist = 9999999.99;
-    int best_label = -1;
-    Serial.printf("Predicting against %d memories...\n", count);
-    for(int i=0; i<count; i++)
+    float top_dist[3] = {INFINITY, INFINITY, INFINITY};
+    int top_labels[3] = {-1, -1, -1};
+    for(int i=0;i<count;i++)
     {
         float dist = get_distance(input_features, database[i].data);
-        Serial.printf("Dist to Memory %d: %f\n", i, dist);
-        if(dist < min_dist) 
+        if (dist < top_dist[0]) 
         {
-            min_dist = dist;
-            best_label = database[i].label;
-        }
+            //push 1st to 2nd, 2nd to 3rd
+            top_dist[2] = top_dist[1]; top_labels[2] = top_labels[1];
+            top_dist[1] = top_dist[0]; top_labels[1] = top_labels[0];
+            //get 1st place
+            top_dist[0] = dist; top_labels[0] = database[i].label;
+            } 
+
+            else if (dist < top_dist[1]) 
+            {
+            //push 2nd to 3rd
+            top_dist[2] = top_dist[1]; top_labels[2] = top_labels[1];
+            //get 2nd place
+            top_dist[1] = dist; top_labels[1] = database[i].label;
+            }
+
+            else if (dist < top_dist[2]) 
+            {
+            //claim 3rd place
+            top_dist[2] = dist; top_labels[2] = database[i].label;
+            }
     }
-    return best_label;
+
+    int votes_yes = 0;
+    int votes_no = 0;
+
+    for (int j = 0; j < 3; j++) 
+    {
+        if (top_labels[j] == 1) votes_yes++;
+        if (top_labels[j] == 0) votes_no++;
+    }
+
+    if (votes_yes > votes_no) return 1;
+    return 0;
 }
