@@ -26,6 +26,16 @@ void KNNClassifier::learn(float* new_features, int label)
         memcpy(database[count].data, new_features, 488*sizeof(float));
         database[count].label = label;
         count++;
+
+
+        prefs.begin("AI memories", false); //false = read/write mode
+
+        prefs.putInt("count", count); //update the count
+
+        String key = "mem_" + String(count-1); //if count = 1, save it at mem_0
+        prefs.putBytes(key.c_str(), &database[count-1], sizeof(Exempler));
+
+        prefs.end();
     }
 }
 
@@ -71,4 +81,23 @@ int KNNClassifier::predict(float* input_features)
 
     if (votes_yes > votes_no) return 1;
     return 0;
+}
+
+void KNNClassifier::load_from_flash()
+{
+    prefs.begin("AI Memories", true); //true = read only mode
+
+    count = prefs.getInt("count", 0); //if count donot exist , use default as 0
+    Serial.printf("Found %d memories in flash\n",count);
+
+    //read the structs
+    for(int i=0; i<count; i++)
+    {
+        String key = "mem_" + String(i); //creates mem0, mem1 as keys for our data
+        
+        //read bytes into the ram database
+        prefs.getBytes(key.c_str(), &database[i], sizeof(Exempler));
+    }
+
+    prefs.end();
 }

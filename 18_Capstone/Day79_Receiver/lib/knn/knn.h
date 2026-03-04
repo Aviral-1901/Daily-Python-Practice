@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <cstring>
+#include <Preferences.h>
 
 float get_distance(float* A, float* B);
 
@@ -19,6 +20,7 @@ class KNNClassifier
     Exempler database[10];
     int count;
     int k = 3;
+    Preferences prefs;
     
     public:
     KNNClassifier();
@@ -27,6 +29,9 @@ class KNNClassifier
    
 
     int predict(float* input_features);
+
+    void load_from_flash();
+    void clear_memory();
  
 };
 

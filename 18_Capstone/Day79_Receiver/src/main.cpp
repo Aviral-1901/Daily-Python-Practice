@@ -46,6 +46,7 @@ void process_packet()
 void setup()
 {
   Serial.begin(115200);
+  my_knn.load_from_flash();
   Serial.setTimeout(5000); //dont wait for more than 2sec for reading Bytes
 }
 
