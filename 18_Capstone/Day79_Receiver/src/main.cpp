@@ -46,6 +46,9 @@ void process_packet()
 void setup()
 {
   Serial.begin(115200);
+  //my_knn.clear_memory();
+  delay(3000);
+  Serial.println("\nSystem booting\n");
   my_knn.load_from_flash();
   Serial.setTimeout(5000); //dont wait for more than 2sec for reading Bytes
 }
@@ -53,17 +56,8 @@ void setup()
 
 void loop()
 {
-  if(Serial.available() > 0) //check for data in the buffer
+  if(Serial.find("START"))
   {
-    char c = Serial.read(); //read one character
-    if(c == 'S') //check if the first character is 'S'
-    {
-      char header[4];
-      Serial.readBytes(header, 4); //check if other characters are T,A,R,T
-      if(header[0] == 'T' && header[1]=='A' && header[2]=='R' && header[3]=='T')
-      {
-        process_packet();
-      }
-    }
+    process_packet();
   }
 }
